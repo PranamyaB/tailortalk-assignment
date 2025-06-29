@@ -1,19 +1,25 @@
 # calendar_tools.py
-import streamlit as st
-from google.oauth2.credentials import Credentials
-from googleapiclient.discovery import build
 import datetime
+import os.path
+from google.oauth2.credentials import Credentials
+from google_auth_oauthlib.flow import InstalledAppFlow
+from google.auth.transport.requests import Request
+from googleapiclient.discovery import build
+
+SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def authenticate_google():
-    token_info = st.secrets["google_token"]
-    creds = Credentials(
-        token=token_info["token"],
-        refresh_token=token_info["refresh_token"],
-        token_uri=token_info["token_uri"],
-        client_id=token_info["client_id"],
-        client_secret=token_info["client_secret"],
-        scopes=token_info["scopes"]
-    )
+    creds = None
+    if os.path.exists('token.json'):
+        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if not creds or not creds.valid:
+        if creds and creds.expired and creds.refresh_token:
+            creds.refresh(Request())
+        else:
+            flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
+            creds = flow.run_local_server(port=0)
+        with open('token.json', 'w') as token:
+            token.write(creds.to_json())
     return creds
 
 def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes=30):
@@ -22,7 +28,6 @@ def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes
 
     if not start_time:
         start_time = datetime.datetime.utcnow() + datetime.timedelta(hours=1)
-
     end_time = start_time + datetime.timedelta(minutes=duration_minutes)
 
     event = {
@@ -32,4 +37,9 @@ def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes
     }
 
     created_event = service.events().insert(calendarId='primary', body=event).execute()
-    return created_event.get('htmlLink')
+    event_link = created_event.get('htmlLink')
+    print(f"Event created: {event_link}")
+    return event_link
+
+if __name__ == "__main__":
+    create_event()
