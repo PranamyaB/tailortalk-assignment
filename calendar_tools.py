@@ -8,10 +8,14 @@ import datetime
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def authenticate_google():
-    # Read token.json securely via secrets
-    with open(st.secrets["GOOGLE_TOKEN_PATH"], "r") as token_file:
-        creds_data = json.load(token_file)
-    creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
+   token_info = st.secrets["google_token"]
+    creds = Credentials(
+        token=token_info["token"],
+        refresh_token=token_info["refresh_token"],
+        token_uri=token_info["token_uri"],
+        client_id=token_info["client_id"],
+        client_secret=token_info["client_secret"],
+        scopes=token_info["scopes"]
     return creds
 
 def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes=30):
