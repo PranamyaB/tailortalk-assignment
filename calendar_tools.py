@@ -1,22 +1,19 @@
 # calendar_tools.py
-
 import streamlit as st
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 import json
 import datetime
 
-# Google Calendar API scope
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
-# Secure token-based authentication for Streamlit Cloud
 def authenticate_google():
+    # Read token.json securely via secrets
     with open(st.secrets["GOOGLE_TOKEN_PATH"], "r") as token_file:
         creds_data = json.load(token_file)
-    creds = Credentials.from_authorized_user_info(creds_data)
+    creds = Credentials.from_authorized_user_info(creds_data, SCOPES)
     return creds
 
-# Create event using Google Calendar API
 def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes=30):
     creds = authenticate_google()
     service = build('calendar', 'v3', credentials=creds)
@@ -28,21 +25,11 @@ def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes
 
     event = {
         'summary': summary,
-        'start': {
-            'dateTime': start_time.isoformat() + 'Z',
-            'timeZone': 'UTC',
-        },
-        'end': {
-            'dateTime': end_time.isoformat() + 'Z',
-            'timeZone': 'UTC',
-        },
+        'start': {'dateTime': start_time.isoformat() + 'Z', 'timeZone': 'UTC'},
+        'end': {'dateTime': end_time.isoformat() + 'Z', 'timeZone': 'UTC'},
     }
 
     created_event = service.events().insert(calendarId='primary', body=event).execute()
     event_link = created_event.get('htmlLink')
-    print(f"Event created: {event_link}")
+    print(f"✅ Event created: {event_link}")
     return event_link
-
-# Optional: Test locally if needed
-if __name__ == "__main__":
-    create_event()
