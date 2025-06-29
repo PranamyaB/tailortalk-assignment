@@ -27,7 +27,7 @@ def authenticate_google():
         },
         SCOPES
     )
-    creds = flow.run_local_server(port=0)
+    creds = flow.run_console()
     return creds
 
 
