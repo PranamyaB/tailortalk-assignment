@@ -2,13 +2,12 @@
 import streamlit as st
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
-import json
 import datetime
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 
 def authenticate_google():
-   token_info = st.secrets["google_token"]
+    token_info = st.secrets["google_token"]
     creds = Credentials(
         token=token_info["token"],
         refresh_token=token_info["refresh_token"],
@@ -16,6 +15,7 @@ def authenticate_google():
         client_id=token_info["client_id"],
         client_secret=token_info["client_secret"],
         scopes=token_info["scopes"]
+    )
     return creds
 
 def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes=30):
