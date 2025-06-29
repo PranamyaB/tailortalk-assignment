@@ -10,7 +10,6 @@ def authenticate_google():
     token_info = st.secrets["google_token"]
     creds = Credentials(
         token=token_info["token"],
-        refresh_token=token_info["refresh_token"],
         token_uri=token_info["token_uri"],
         client_id=token_info["client_id"],
         client_secret=token_info["client_secret"],
