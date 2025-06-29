@@ -32,6 +32,4 @@ def create_event(summary="TailorTalk Meeting", start_time=None, duration_minutes
     }
 
     created_event = service.events().insert(calendarId='primary', body=event).execute()
-    event_link = created_event.get('htmlLink')
-    print(f"Event created: {event_link}")
-    return event_link
+    return created_event.get('htmlLink')
